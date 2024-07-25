@@ -5,6 +5,10 @@ on:
     tags:
     - 'v*'
 
+env:
+  CONTAINER_REGISTRY: ghcr.io
+  IMAGE_NAME: nsg-prometheus-aws-exporter
+
 jobs:
   buildDockerImage:
     if: github.repository == 'happygears/yet-another-cloudwatch-exporter'
@@ -17,6 +21,15 @@ jobs:
       with:
         go-version: ^1.22
 
+    - name: Define NSG version number
+      id: nsg_version
+      uses: happygears/gt2v@v1
+
+    - name: docker tag
+      id: docker_tag
+      run: echo "::set-output name=tag::$([ ${{ steps.nsg_version.outputs.is_release_branch }} = 'true' ] && echo release || echo ${{ steps.nsg_version.outputs.git_branch_safe }})"
+      shell: bash
+
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3
 
@@ -26,12 +39,19 @@ jobs:
     - name: Log into docker
       env:
         DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-        DOCKER_REGISTRY_URL: ghcr.io
+        DOCKER_REGISTRY_URL: ${{ env.CONTAINER_REGISTRY }}
         DOCKER_USERNAME: ${{ github.actor }}
       run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD $DOCKER_REGISTRY_URL
 
     - name: Build and Publish docker image
-      run: docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t ghcr.io/happygears/yet-another-cloudwatch-exporter:${{github.ref_name}} --build-arg VERSION=${{github.ref_name}} --push .
+      run: |
+        docker buildx build 
+          --platform linux/amd64,linux/arm64,linux/arm/v7 
+          -t ${{ env.CONTAINER_REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:git-${{ github.sha }}
+          -t ${{ env.CONTAINER_REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ steps.nsg_version.outputs.long_version }}
+          -t ${{ env.CONTAINER_REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ steps.docker_tag.outputs.tag }}
+          --build-arg VERSION=${{ steps.nsg_version.outputs.long_version }} 
+          --push .
 
     - name: Build && release binaries
       uses: goreleaser/goreleaser-action@v6
