@@ -45,12 +45,12 @@ jobs:
 
     - name: Build and Publish docker image
       run: |
-        docker buildx build 
-          --platform linux/amd64,linux/arm64,linux/arm/v7 
-          -t ${{ env.CONTAINER_REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:git-${{ github.sha }}
-          -t ${{ env.CONTAINER_REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ steps.nsg_version.outputs.long_version }}
-          -t ${{ env.CONTAINER_REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ steps.docker_tag.outputs.tag }}
-          --build-arg VERSION=${{ steps.nsg_version.outputs.long_version }} 
+        docker buildx build \
+          --platform linux/amd64,linux/arm64,linux/arm/v7 \
+          -t ${{ env.CONTAINER_REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:git-${{ github.sha }} \
+          -t ${{ env.CONTAINER_REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ steps.nsg_version.outputs.long_version }} \
+          -t ${{ env.CONTAINER_REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ steps.docker_tag.outputs.tag }} \
+          --build-arg VERSION=${{ steps.nsg_version.outputs.long_version }} \
           --push .
 
     - name: Build && release binaries
