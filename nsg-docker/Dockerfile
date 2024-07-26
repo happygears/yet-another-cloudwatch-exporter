@@ -36,7 +36,7 @@ RUN mkdir /var/lib/filebeat && mkdir /var/log/nsg/
 
 # ensure correct permissions on files
 RUN chmod -R go-w /etc/filebeat /usr/share/filebeat/module /var/lib/filebeat /var/log/nsg/
-RUN chown -R exporter:exporter /var/log/nsg/
+RUN chown -R exporter:exporter /etc/filebeat /usr/share/filebeat/module /var/lib/filebeat /var/log/nsg/
 
 COPY nsg-docker/run.sh  /run.sh
 RUN chmod +x /run.sh
