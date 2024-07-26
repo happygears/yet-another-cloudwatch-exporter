@@ -1,0 +1,11 @@
+module_version: 1.0
+
+var:
+  - name: netspyglass_home
+    default: /opt/netspyglass
+  - name: paths
+    default:
+      - "{{.netspyglass_home}}/var/logs/*.log"
+
+ingest_pipeline: ingest/pipeline.yml
+input: config/log.yml

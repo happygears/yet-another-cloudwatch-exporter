@@ -1,0 +1,20 @@
+logging.level: error
+
+filebeat.modules:
+  - module: netspyglass
+    log.var.paths:
+      - /var/log/nsg/*
+
+fields: {"component":"${DOCKER_SERVICE_NAME}","customer":"${CUSTOMER_ID}","source":"docker"}
+
+output.kafka:
+  hosts: ["${KAFKA_MONITOR_URL}"]
+  topic: "${KAFKA_MONITOR_LOGS_TOPIC}"
+  ssl.certificate_authorities: ["/kafka/ssl/kafka_monitor.ca"]
+  ssl.certificate: "/kafka/ssl/kafka_monitor.cert"
+  ssl.key: "/run/secrets/kafka_monitor.key"
+
+processors:
+  - add_host_metadata:
+      when.not.contains.tags: forwarded
+  - add_docker_metadata: ~
