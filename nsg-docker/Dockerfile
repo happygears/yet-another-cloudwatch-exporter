@@ -26,6 +26,8 @@ WORKDIR /exporter/
 RUN apt -y update && apt -y install ca-certificates daemontools less procps unzip curl rsyslog rsyslog-relp && apt clean all
 COPY --from=builder /opt/yace /usr/local/bin/yace
 
+RUN mkdir -p /run/secrets/
+
 # ensure correct permissions on files
 RUN chmod -R go-r /run/secrets/
 
