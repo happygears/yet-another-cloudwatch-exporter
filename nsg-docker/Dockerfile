@@ -26,17 +26,8 @@ WORKDIR /exporter/
 RUN apt -y update && apt -y install ca-certificates daemontools less procps unzip curl rsyslog rsyslog-relp && apt clean all
 COPY --from=builder /opt/yace /usr/local/bin/yace
 
-# Download and install filebeat
-RUN curl -sSfo /tmp/filebeat.deb https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-oss-7.10.0-amd64.deb && \
-    apt-get -y install -o Dpkg::Options::="--force-confold" -o Dpkg::Options::="--force-confdef" /tmp/filebeat.deb && \
-    rm -f  /tmp/filebeat.deb
-COPY nsg-docker/files/    /
-
-RUN mkdir /var/lib/filebeat && mkdir /var/log/nsg/
-
 # ensure correct permissions on files
-RUN chmod -R go-w /etc/filebeat /usr/share/filebeat/module /var/lib/filebeat /var/log/nsg/
-RUN chown -R exporter:exporter /etc/filebeat /usr/share/filebeat/module /var/lib/filebeat /var/log/nsg/
+RUN chmod -R go-r /run/secrets/
 
 COPY nsg-docker/run.sh  /run.sh
 RUN chmod +x /run.sh
